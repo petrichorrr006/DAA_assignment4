@@ -1,0 +1,15 @@
+# Java build
+*.class
+*.jar
+target/
+bin/
+out/
+
+# VSCode
+.vscode/
+.idea/
+*.iml
+
+# OS files
+Thumbs.db
+.DS_Store
