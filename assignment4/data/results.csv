@@ -1,0 +1,10 @@
+Graph,NumNodes,NumEdges,SCC_time_ns,SCC_dfs,Topo_time_ns,Topo_queueOps,Shortest_time_ns,Shortest_relax,Longest_time_ns,Longest_relax
+small1.json,6,5,95500,6,26100,6,23800,3,7300,3
+small2.json,8,10,106800,8,2600,0
+small3.json,10,23,124400,10,3800,0
+medium1.json,10,8,123100,10,35300,10,14700,0,7400,0
+medium2.json,15,23,129900,15,2800,0
+medium3.json,20,77,200200,20,51000,2
+large1.json,20,10,167800,20,40600,20,15900,1,9100,1
+large2.json,35,58,295300,35,3100,0
+large3.json,50,152,452000,50,28800,1

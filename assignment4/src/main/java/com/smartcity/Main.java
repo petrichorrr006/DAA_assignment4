@@ -13,7 +13,7 @@ public class Main {
         if (args.length > 0) {
             file = args[0];
         } else {
-            file = "C:/Users/User/Desktop/DAA_assignment4/assignment4/data/small1.json";
+            file = "C:/Users/User/Desktop/DAA_assignment4/assignment4/data/large3.json";
         }
 
         System.out.println("Reading graph from: " + file);
