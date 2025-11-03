@@ -1,52 +1,92 @@
 package com.smartcity.dagsp;
 
-import com.smartcity.utils.Metrics;
 import java.util.*;
+import com.smartcity.utils.Metrics;
 
 public class DAGShortestPath {
 
-    public static Map<Integer, Integer> shortestPath(Map<Integer, List<int[]>> graph, int source, List<Integer> topoOrder, Metrics metrics) {
+    public static Map<Integer, Integer> shortestPath(
+            Map<Integer, List<int[]>> graph,
+            List<Integer> topoOrder,
+            int start,
+            Metrics metrics) {
 
-        metrics.start();
         Map<Integer, Integer> dist = new HashMap<>();
-        for (int v : graph.keySet())
-            dist.put(v, Integer.MAX_VALUE);
-        dist.put(source, 0);
 
-        for (int v : topoOrder) {
-            if (dist.get(v) != Integer.MAX_VALUE) {
-                for (int[] edge : graph.getOrDefault(v, List.of())) {
-                    int to = edge[0], w = edge[1];
-                    metrics.relaxations++;
-                    if (dist.get(v) + w < dist.get(to)) {
-                        dist.put(to, dist.get(v) + w);
+        for (Integer v : graph.keySet()) {
+            dist.put(v, Integer.MAX_VALUE);
+        }
+        for (List<int[]> edges : graph.values()) {
+            for (int[] e : edges) {
+                if (!dist.containsKey(e[0])) dist.put(e[0], Integer.MAX_VALUE);
+                if (!dist.containsKey(e[1])) dist.put(e[1], Integer.MAX_VALUE);
+            }
+        }
+
+        if (!dist.containsKey(start)) {
+            System.out.println("⚠️ Start vertex " + start + " not found in graph!");
+            return dist;
+        }
+
+        dist.put(start, 0);
+        metrics.start();
+
+        for (int u : topoOrder) {
+            if (dist.get(u) != Integer.MAX_VALUE) {
+                for (int[] edge : graph.getOrDefault(u, Collections.emptyList())) {
+                    int v = edge[0];
+                    int w = edge[1];
+                    if (dist.get(v) > dist.get(u) + w) {
+                        dist.put(v, dist.get(u) + w);
+                        metrics.relaxations++;
                     }
                 }
             }
         }
+
         metrics.stop();
         return dist;
     }
 
-    public static Map<Integer, Integer> longestPath(Map<Integer, List<int[]>> graph, int source, List<Integer> topoOrder, Metrics metrics) {
-        
-        metrics.start();
-        Map<Integer, Integer> dist = new HashMap<>();
-        for (int v : graph.keySet())
-            dist.put(v, Integer.MIN_VALUE);
-        dist.put(source, 0);
+    public static Map<Integer, Integer> longestPath(
+            Map<Integer, List<int[]>> graph,
+            List<Integer> topoOrder,
+            int start,
+            Metrics metrics) {
 
-        for (int v : topoOrder) {
-            if (dist.get(v) != Integer.MIN_VALUE) {
-                for (int[] edge : graph.getOrDefault(v, List.of())) {
-                    int to = edge[0], w = edge[1];
-                    metrics.relaxations++;
-                    if (dist.get(v) + w > dist.get(to)) {
-                        dist.put(to, dist.get(v) + w);
+        Map<Integer, Integer> dist = new HashMap<>();
+
+        for (Integer v : graph.keySet()) {
+            dist.put(v, Integer.MIN_VALUE);
+        }
+        for (List<int[]> edges : graph.values()) {
+            for (int[] e : edges) {
+                if (!dist.containsKey(e[0])) dist.put(e[0], Integer.MIN_VALUE);
+                if (!dist.containsKey(e[1])) dist.put(e[1], Integer.MIN_VALUE);
+            }
+        }
+
+        if (!dist.containsKey(start)) {
+            System.out.println("⚠️ Start vertex " + start + " not found in graph!");
+            return dist;
+        }
+
+        dist.put(start, 0);
+        metrics.start();
+
+        for (int u : topoOrder) {
+            if (dist.get(u) != Integer.MIN_VALUE) {
+                for (int[] edge : graph.getOrDefault(u, Collections.emptyList())) {
+                    int v = edge[0];
+                    int w = edge[1];
+                    if (dist.get(v) < dist.get(u) + w) {
+                        dist.put(v, dist.get(u) + w);
+                        metrics.relaxations++;
                     }
                 }
             }
         }
+
         metrics.stop();
         return dist;
     }

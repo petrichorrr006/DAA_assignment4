@@ -4,57 +4,59 @@ import com.smartcity.utils.Metrics;
 import java.util.*;
 
 public class SCCFinder {
-    private final Map<Integer, List<Integer>> graph;
-    private final List<List<Integer>> components = new ArrayList<>();
-    private final Metrics metrics;
 
-    private final Map<Integer, Integer> disc = new HashMap<>();
-    private final Map<Integer, Integer> low = new HashMap<>();
-    private final Deque<Integer> stack = new ArrayDeque<>();
-    private final Set<Integer> inStack = new HashSet<>();
-    private int time = 0;
+    private static int time;
+    private static Map<Integer, Integer> disc, low;
+    private static Deque<Integer> stack;
+    private static Set<Integer> onStack;
+    private static List<List<Integer>> sccList;
 
-    public SCCFinder(Map<Integer, List<Integer>> graph, Metrics metrics) {
-        this.graph = graph;
-        this.metrics = metrics;
-    }
+    public static List<List<Integer>> findSCC(Map<Integer, List<int[]>> graph, Metrics metrics) {
+        time = 0;
+        disc = new HashMap<>();
+        low = new HashMap<>();
+        stack = new ArrayDeque<>();
+        onStack = new HashSet<>();
+        sccList = new ArrayList<>();
 
-    public List<List<Integer>> findSCCs() {
         metrics.start();
-        for (int v : graph.keySet()) {
-            if (!disc.containsKey(v))
-                dfs(v);
+        for (Integer v : graph.keySet()) {
+            if (!disc.containsKey(v)) {
+                dfs(v, graph, metrics);
+            }
         }
         metrics.stop();
-        return components;
+        return sccList;
     }
 
-    private void dfs(int v) {
-        metrics.dfsCalls++;
-        disc.put(v, time);
-        low.put(v, time);
+    private static void dfs(int u, Map<Integer, List<int[]>> graph, Metrics metrics) {
+        disc.put(u, time);
+        low.put(u, time);
         time++;
-        stack.push(v);
-        inStack.add(v);
+        stack.push(u);
+        onStack.add(u);
+        metrics.dfsCalls++;
 
-        for (int to : graph.getOrDefault(v, List.of())) {
-            if (!disc.containsKey(to)) {
-                dfs(to);
-                low.put(v, Math.min(low.get(v), low.get(to)));
-            } else if (inStack.contains(to)) {
-                low.put(v, Math.min(low.get(v), disc.get(to)));
+        for (int[] edge : graph.getOrDefault(u, Collections.emptyList())) {
+            int v = edge[0]; // предполагается формат [to, weight]
+            if (!disc.containsKey(v)) {
+                dfs(v, graph, metrics);
+                low.put(u, Math.min(low.get(u), low.get(v)));
+            } else if (onStack.contains(v)) {
+                low.put(u, Math.min(low.get(u), disc.get(v)));
             }
         }
 
-        if (Objects.equals(low.get(v), disc.get(v))) {
-            List<Integer> comp = new ArrayList<>();
+        // Найдена компонента сильной связности
+        if (low.get(u).equals(disc.get(u))) {
+            List<Integer> scc = new ArrayList<>();
             int w;
             do {
                 w = stack.pop();
-                inStack.remove(w);
-                comp.add(w);
-            } while (w != v);
-            components.add(comp);
+                onStack.remove(w);
+                scc.add(w);
+            } while (w != u);
+            sccList.add(scc);
         }
     }
 }
